@@ -1,4 +1,4 @@
-const {LuisRecognizer} = require('botbuilder-ai')
+const { LuisRecognizer } = require('botbuilder-ai');
 
 class IntentRecognizer {
     constructor(config) {
@@ -26,7 +26,6 @@ class IntentRecognizer {
         return await this.recognizer.recognize(context);
     }
 
- 
     getTimeEntity(result) {
         const datetimeEntity = result.entities.datetime;
         if (!datetimeEntity || !datetimeEntity[0]) return undefined;
@@ -34,9 +33,9 @@ class IntentRecognizer {
         const timex = datetimeEntity[0].timex;
         if (!timex || !timex[0]) return undefined;
 
-        const datetime = timex[0]
+        const datetime = timex[0];
         return datetime;
     }
 }
 
-module.exports = IntentRecognizer
+module.exports = IntentRecognizer;

@@ -44,13 +44,19 @@ class DentaBot extends ActivityHandler {
             // }
             // else {...}
 
+            const replyText = `Echo: ${ context.activity.text }`;
+            await context.sendActivity(MessageFactory.text(replyText, replyText));
+            // By calling next() you ensure that the next BotHandler is run.
             await next();
         });
 
         this.onMembersAdded(async (context, next) => {
             const membersAdded = context.activity.membersAdded;
             // write a custom greeting
-            const welcomeText = '';
+            const welcomeText =
+        `Welcome to Dental Virtual Assistant. 
+        Please our assistance is currently limited to checking availability and scheduling an appointment. 
+        Kindly take note of that.`;
             for (let cnt = 0; cnt < membersAdded.length; ++cnt) {
                 if (membersAdded[cnt].id !== context.activity.recipient.id) {
                     await context.sendActivity(
