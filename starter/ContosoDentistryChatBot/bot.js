@@ -22,7 +22,10 @@ class DentaBot extends ActivityHandler {
 
         // create a DentistScheduler connector
 
+        this.DentistScheduler = new DentistScheduler(configuration);
+
         // create a IntentRecognizer connector
+        this.IntentRecognizer = new IntentRecognizer(configuration);
 
         this.onMessage(async (context, next) => {
             // send user input to QnA Maker and collect the response in a variable
