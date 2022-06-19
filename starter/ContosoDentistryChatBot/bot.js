@@ -18,11 +18,7 @@ class DentaBot extends ActivityHandler {
         }
 
         // create a QnAMaker connector
-<<<<<<< HEAD
         this.QnAMaker = new QnAMaker(configuration);
-=======
-        this.QnAMaker = new QnAMaker();
->>>>>>> e9c60908458b40ab1f531ffc864dc0674002cd46
 
         // create a DentistScheduler connector
 

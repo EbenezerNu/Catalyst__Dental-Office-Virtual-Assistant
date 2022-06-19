@@ -21,13 +21,7 @@ const { DentaBot } = require('./bot');
 const server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, () => {
     console.log(`\n${ server.name } listening to ${ server.url }`);
-<<<<<<< HEAD
-    console.log(
-        '\nGet Bot Framework Emulator: https://aka.ms/botframework-emulator'
-    );
-=======
     console.log('\nGet Bot Framework Emulator: https://aka.ms/botframework-emulator');
->>>>>>> e9c60908458b40ab1f531ffc864dc0674002cd46
     console.log('\nTo talk to your bot, open the emulator select "Open Bot"');
 });
 
