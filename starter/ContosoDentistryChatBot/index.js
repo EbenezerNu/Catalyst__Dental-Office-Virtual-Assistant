@@ -21,7 +21,9 @@ const { DentaBot } = require('./bot');
 const server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, () => {
     console.log(`\n${ server.name } listening to ${ server.url }`);
-    console.log('\nGet Bot Framework Emulator: https://aka.ms/botframework-emulator');
+    console.log(
+        '\nGet Bot Framework Emulator: https://aka.ms/botframework-emulator'
+    );
     console.log('\nTo talk to your bot, open the emulator select "Open Bot"');
 });
 
@@ -58,11 +60,7 @@ const onTurnErrorHandler = async (context, error) => {
 adapter.onTurnError = onTurnErrorHandler;
 
 // Map configuration values values from .env file into the required format for each service.
-console.log(
-    'knowledgeBaseId: ' + process.env.QnAKnowledgebaseId,
-    'endpointKey: ' + process.env.QnAAuthKey,
-    'host: ' + process.env.QnAEndpointHostName
-);
+
 const QnAConfiguration = {
     knowledgeBaseId: process.env.QnAKnowledgebaseId,
     endpointKey: process.env.QnAAuthKey,
@@ -86,7 +84,6 @@ const configuration = {
 };
 
 // Create the main dialog.
-console.log('Configuration : ', configuration);
 
 const myBot = new DentaBot(configuration, {});
 

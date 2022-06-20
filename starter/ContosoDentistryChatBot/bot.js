@@ -43,9 +43,44 @@ class DentaBot extends ActivityHandler {
             //  return;
             // }
             // else {...}
+            // const results = IntentRecognizer.executeLuisQuery(context);
+            // const topIntent = results.luisResult.topScoringIntent;
 
-            const replyText = `Echo: ${ context.activity.text }`;
-            await context.sendActivity(MessageFactory.text(replyText, replyText));
+            // switch (topIntent.intent) {
+            // case 'GetAvailability':
+            //     await context.sendActivity('Hey! Ask me something to get started.');
+            //     break;
+            // case 'ScheduleAppointment':
+            //     await updateInfoIntent.handleIntent(turnContext);
+            //     break;
+            // }
+
+            if (!this.QnAMaker) {
+                const unconfiguredQnaMessage =
+          'NOTE: \r\n' +
+          'QnA Maker is not configured. To enable all capabilities, add `QnAKnowledgebaseId`, `QnAEndpointKey` and `QnAEndpointHostName` to the .env file. \r\n' +
+          'You may visit www.qnamaker.ai to create a QnA Maker knowledge base.';
+
+                await context.sendActivity(unconfiguredQnaMessage);
+            } else {
+                console.log('Calling QnA Maker');
+
+                const qnaResults = await QnAMaker.getAnswers(context);
+                console.log('qnaResults : ', qnaResults);
+
+                // If an answer was received from QnA Maker, send the answer back to the user.
+                if (qnaResults[0]) {
+                    await context.sendActivity(qnaResults[0].answer);
+                    console.log('qnaResults[0] answer: ', qnaResults[0].answer);
+                    // If no answers were returned from QnA Maker, reply with help.
+                } else {
+                    await context.sendActivity('No QnA Maker answers were found.');
+                    console.log('Else : No QnA Maker answers were found.');
+                }
+            }
+
+            // const replyText = `Echo: ${ context.activity.text }`;
+            // await context.sendActivity(MessageFactory.text(replyText, replyText));
             // By calling next() you ensure that the next BotHandler is run.
             await next();
         });
@@ -53,8 +88,7 @@ class DentaBot extends ActivityHandler {
         this.onMembersAdded(async (context, next) => {
             const membersAdded = context.activity.membersAdded;
             // write a custom greeting
-            const welcomeText =
-        `Welcome to Dental Virtual Assistant. 
+            const welcomeText = `Welcome to Dental Virtual Assistant. 
         Please our assistance is currently limited to checking availability and scheduling an appointment. 
         Kindly take note of that.`;
             for (let cnt = 0; cnt < membersAdded.length; ++cnt) {

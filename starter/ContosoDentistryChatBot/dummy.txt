@@ -1,0 +1,31 @@
+var server = restify.createServer();
+server.listen(process.env.port || process.env.PORT || 3978, function() {
+    console.log('%s listening to %s', server.name, server.url);
+});
+
+var connector = new builder.ChatConnector({
+    appId: "APP ID",
+    appPassword: "APP PASSWORD"
+});
+server.post('/api/messages', connector.listen());
+
+var bot = new builder.UniversalBot(connector, function(session) {
+    session.send('Sorry, I did not understand \'%s\'. Type \'help\' if you need assistance.', session.message.text);
+});
+
+var recognizer = new builder.LuisRecognizer("https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/{LUIS APP ID}?subscription-key={LUIS KEY}&verbose=true&timezoneOffset=0&q=");
+
+bot.recognizer(recognizer);
+var qnaRecognizer = new cog.QnAMakerRecognizer({
+    knowledgeBaseId: 'QNA APP ID',
+    subscriptionKey: 'QNA SUBSCRIPTION KEY'
+}); 
+
+bot.dialog('Common', function(session) {
+    var query = session.message.text;        
+    cog.QnAMakerRecognizer.recognize(query, 'https://westus.api.cognitive.microsoft.com/qnamaker/v2.0/knowledgebases/{QNA APP ID}}/generateAnswer', '{QNA SUBSCRIPTION KEY}', 1, 'intentName', (error, results) => {
+        session.send(results.answers[0].answer)    
+    })    
+}).triggerAction({
+    matches: 'Common'
+});
