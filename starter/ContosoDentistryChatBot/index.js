@@ -29,9 +29,9 @@ server.listen(process.env.port || process.env.PORT || 3978, () => {
 
 // Create adapter.
 // See https://aka.ms/about-bot-adapter to learn more about how bots work.
-const adapter = new BotFrameworkAdapter({
-    appId: null, // process.env.MicrosoftAppId,
-    appPassword: null // process.env.MicrosoftAppPassword
+const adapter = new BotFrameworkAdapter ({
+    appId: process.env.MicrosoftAppId,
+    appPassword: process.env.MicrosoftAppPassword
 });
 
 // Catch-all for errors.
@@ -94,6 +94,33 @@ server.post('/api/messages', (req, res) => {
         await myBot.run(context);
     });
 });
+
+// add dialog to bot for LIUS
+/* const LuisModelUrl = process.env.LuisAPIHostName + '/luis/v2.0/apps/' + process.env.LuisAppId + '?subscription-key=' + process.env.LuisAPIKey;
+// Create a recognizer that gets intents from LUIS, and add it to the bot
+var recognizer = new builder.LuisRecognizer(LuisModelUrl);
+DentaBot.recognizer(recognizer);
+
+// Add a dialog for each intent that the LUIS app recognizes.
+// See https://docs.microsoft.com/en-us/bot-framework/nodejs/bot-builder-nodejs-recognize-intent-luis
+
+DentaBot.dialog('GetAvailbilityDialog',
+    function(session) {
+        session.send('You reached the GetAvailbility intent. You said \'%s\'.', session.message.text);
+        session.endDialog();
+    }
+).triggerAction({
+    matches: 'GetAvailability'
+});
+
+DentaBot.dialog('ScheduleAppointmentDialog',
+    (session) => {
+        session.send('You reached the ScheduleAppointment intent. You said \'%s\'.', session.message.text);
+        session.endDialog();
+    }
+).triggerAction({
+    matches: 'ScheduleAppointment'
+}); */
 
 // Listen for Upgrade requests for Streaming.
 server.on('upgrade', (req, socket, head) => {
