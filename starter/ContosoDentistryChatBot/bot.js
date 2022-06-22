@@ -34,6 +34,18 @@ class DentaBot extends ActivityHandler {
             configuration.LuisConfiguration
         );
 
+        const getAvailableTimes = [
+            '8am',
+            '9am',
+            '10am',
+            '11am',
+            '12pm',
+            '1pm',
+            '2pm',
+            '3pm',
+            '4pm'
+        ];
+
         this.onMessage(async (context, next) => {
             const qnaResults = await this.qnAMaker.getAnswers(context);
             const luisResults = await this.intentRecognizer.executeLuisQuery(context);
@@ -43,18 +55,19 @@ class DentaBot extends ActivityHandler {
         luisResults.intents.GetAvailability.score > 0.6
             ) {
                 console.log('Intent recognizer works on GetAvailability');
-                var availableTimes = '';
-                fetch('localhost:3000/availability', {
-                    method: 'GET'
-                }).then(
-                    (res) =>
-                        function(res) {
-                            availableTimes = res;
-                        }
-                );
-                if (availableTimes !== '') {
+
+                // fetch('localhost:3000/availability', {
+                //     method: 'GET'
+                // }).then(
+                //     (res) =>
+                //         function(res) {
+                //             availableTimes = res;
+                //         }
+                // );
+                console.log('Availability : ', getAvailableTimes);
+                if (getAvailableTimes !== '') {
                     await context.sendActivity(
-                        'These are our available times : ' + availableTimes
+                        'These are our available times : ' + getAvailableTimes
                     );
                 } else {
                     await context.sendActivity(
@@ -72,32 +85,31 @@ class DentaBot extends ActivityHandler {
                 console.log('Intent recognizer works on ScheduleAppointment');
                 const time_ = luisResults.entities.$instance.Time[0].text;
 
-                var availablePeriod = '';
-                fetch('localhost:3000/availability', {
-                    method: 'GET'
-                }).then(
-                    (res) =>
-                        function(res) {
-                            availablePeriod = res;
-                        }
-                );
+                console.log('Availability : ', getAvailableTimes);
+                // fetch('localhost:3000/availability', {
+                //     method: 'GET'
+                // }).then(
+                //     (res) =>
+                //         function(res) {
+                //             availablePeriod = res;
+                //         }
+                // );
 
-                let success = false;
-                if (time_ && availablePeriod.includes(time_)) {
-                    fetch('localhost:3000/availability', {
-                        method: 'POST',
-                        body: time_
-                    }).then(
-                        (res) =>
-                            function(res) {
-                                success = true;
-                            }
+                // let success = false;
+                if (getAvailableTimes.includes(time_)) {
+                    // fetch('localhost:3000/availability', {
+                    //     method: 'POST',
+                    //     body: time_
+                    // }).then(
+                    //     (res) =>
+                    //         function(res) {
+                    //             success = true;
+                    //         }
+                    // );
+
+                    await context.sendActivity(
+                        'Your appointment has been successfully scheduled for ' + time_
                     );
-                    if (success) {
-                        await context.sendActivity(
-                            'Your appointment has been successfully scheduled for ' + time_
-                        );
-                    }
                 } else {
                     await context.sendActivity(
                         'Your indicated time is not available for booking.\r\nCheck availability first'
