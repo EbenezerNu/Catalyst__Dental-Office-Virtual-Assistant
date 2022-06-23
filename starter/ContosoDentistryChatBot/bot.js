@@ -34,18 +34,6 @@ class DentaBot extends ActivityHandler {
             configuration.LuisConfiguration
         );
 
-        const getAvailableTimes = [
-            '8am',
-            '9am',
-            '10am',
-            '11am',
-            '12pm',
-            '1pm',
-            '2pm',
-            '3pm',
-            '4pm'
-        ];
-
         this.onMessage(async (context, next) => {
             try {
                 const qnaResults = await this.qnAMaker.getAnswers(context);
@@ -57,7 +45,7 @@ class DentaBot extends ActivityHandler {
                 luisResults.intents.GetAvailability.score > 0.6
                 ) {
                     console.log('Intent recognizer works on GetAvailability');
-                    response = await this.dentistScheduler.getAvailability;
+                    response = await this.dentistScheduler.getAvailability();
                 } else if (
                     luisResults.luisResult.prediction.topIntent === 'ScheduleAppointment' &&
                 luisResults.intents.ScheduleAppointment.score > 0.6
