@@ -47,133 +47,50 @@ class DentaBot extends ActivityHandler {
         ];
 
         this.onMessage(async (context, next) => {
-            const qnaResults = await this.qnAMaker.getAnswers(context);
-            const luisResults = await this.intentRecognizer.executeLuisQuery(context);
-            console.log('Luis Results: ' + JSON.stringify(luisResults.luisResult));
-            if (
-                luisResults.luisResult.prediction.topIntent === 'GetAvailability' &&
-        luisResults.intents.GetAvailability.score > 0.5
-            ) {
-                console.log('Intent recognizer works on GetAvailability');
-
-                // fetch('localhost:3000/availability', {
-                //     method: 'GET'
-                // }).then(
-                //     (res) =>
-                //         function(res) {
-                //             availableTimes = res;
-                //         }
-                // );
-                console.log('Availability : ', getAvailableTimes);
-                if (getAvailableTimes !== '') {
-                    await context.sendActivity(
-                        'These are our available times : ' + getAvailableTimes
-                    );
+            try {
+                const qnaResults = await this.qnAMaker.getAnswers(context);
+                const luisResults = await this.intentRecognizer.executeLuisQuery(context);
+                console.log('Luis Results: ' + JSON.stringify(luisResults.luisResult));
+                let response = '';
+                if (
+                    luisResults.luisResult.prediction.topIntent === 'GetAvailability' &&
+                luisResults.intents.GetAvailability.score > 0.6
+                ) {
+                    console.log('Intent recognizer works on GetAvailability');
+                    response = await this.dentistScheduler.getAvailability;
+                } else if (
+                    luisResults.luisResult.prediction.topIntent === 'ScheduleAppointment' &&
+                luisResults.intents.ScheduleAppointment.score > 0.6
+                ) {
+                    console.log('Inside Schedule appointment');
+                    const time_ = luisResults.entities.$instance.Time;
+                    console.log('Time : ', time_);
+                    if (time_ !== undefined || time_ != null) {
+                        response = await this.dentistScheduler.scheduleAppointment(time_[0].text);
+                    } else {
+                        response = 'Kindly indicate the time you would want to schedule appointment or check availability for in the message';
+                    }
+                } else if (this.qnAMaker.isConfigured) {
+                    response = 'NB: \r\n' +
+                'Please confirm that the QnA Maker is configured. Kindly check that you have valid `QnAKnowledgebaseId`, `QnAEndpointKey` and `QnAEndpointHostName` in your .env file. \r\n' +
+                'You may visit www.qnamaker.ai to create a QnA Maker knowledge base.';
                 } else {
-                    await context.sendActivity(
-                        'Oops! \r\nCould not fetch the availability information '
-                    );
-                }
-                await next();
-                return;
-            } else if (
-                luisResults.luisResult.prediction.topIntent === 'ScheduleAppointment' &&
-        luisResults.intents.ScheduleAppointment.score > 0.5
-            ) {
-                console.log('Intent recognizer works on ScheduleAppointment');
-                let time_ = '';
-                if (luisResults.entities.$instance.Time != null || luisResults.entities.$instance.Time !== undefined) { time_ = luisResults.entities.$instance.Time[0].text; }
-
-                console.log('Availability Schedule: ', getAvailableTimes, '\nTime Detected : ', time_);
-                // fetch('localhost:3000/availability', {
-                //     method: 'GET'
-                // }).then(
-                //     (res) =>
-                //         function(res) {
-                //             availablePeriod = res;
-                //         }
-                // );
-
-                // let success = false;
-                if (getAvailableTimes.includes(time_)) {
-                    // fetch('localhost:3000/availability', {
-                    //     method: 'POST',
-                    //     body: time_
-                    // }).then(
-                    //     (res) =>
-                    //         function(res) {
-                    //             success = true;
-                    //         }
-                    // );
-
-                    await context.sendActivity(
-                        'Your appointment has been successfully scheduled for ' + time_
-                    );
-                } else {
-                    await context.sendActivity(
-                        'Either your indicated time is not available for booking, is incorrect or you did not specify one.\r\nCheck availability first before scheduling an appointment'
-                    );
-                }
-                await next();
-                return;
-            }
-            if (this.qnAMaker.isConfigured) {
-                const unconfiguredQnaMessage =
-          'NB: \r\n' +
-          'Please confirm that the QnA Maker is configured. Kindly check that you have valid `QnAKnowledgebaseId`, `QnAEndpointKey` and `QnAEndpointHostName` in your .env file. \r\n' +
-          'You may visit www.qnamaker.ai to create a QnA Maker knowledge base.';
-
-                await context.sendActivity(unconfiguredQnaMessage);
-            } else {
-                console.log('qnaResults : ', qnaResults);
-
-                // If an answer was received from QnA Maker, send the answer back to the user.
-                if (qnaResults[0]) {
-                    await context.sendActivity(qnaResults[0].answer);
-                    console.log('qnaResults[0] answer: ', qnaResults[0].answer);
+                    if (qnaResults[0]) {
+                        response = qnaResults[0].answer;
+                        console.log('qnaResults[0] answer: ', qnaResults[0].answer);
                     // If no answers were returned from QnA Maker, reply with help.
-                } else {
-                    await context.sendActivity('No QnA Maker answers were found.');
-                    console.log('Else : No QnA Maker answers were found.');
+                    } else {
+                        response = 'No QnA Maker answers were found.';
+                        console.log('Else : No QnA Maker answers were found.');
+                    }
                 }
+                await context.sendActivity(response);
+
+                // By calling next() you ensure that the next BotHandler is run.
+                await next();
+            } catch (e) {
+                console.error(e);
             }
-
-            /* const replyText = `Echo: ${ context.activity.text }`;
-       */
-            // console.log('Answer : ' + JSON.stringify(answer[0]));
-
-            // if (
-            //     process.env.LuisAppId &&
-            //     process.env.LuisAPIKey &&
-            //     process.env.LuisAPIHostName
-            // // this.intentRecognizer.isConfigured
-            // ) {
-            //     const LuisModelUrl = process.env.LuisAPIHostName + '/luis/v2.0/apps/' + process.env.LuisAppId + '?subscription-key=' + process.env.LuisAPIKey;
-
-            //     // Create a recognizer that gets intents from LUIS, and add it to the bot
-            //     var recognizer = new ActivityHandler.LuisRecognizer(LuisModelUrl);
-            //     DentaBot.recognizer(recognizer);
-            //     console.log(JSON.stringify());
-            //     // let message = 'nothing yet';
-            //     // switch (IntentRecognizer.topIntent(luisResponse)) {
-            //     // default: {
-            //     //     message = 'Now we are unto something';
-            //     //     break;
-            //     // }
-            //     // }
-            //     // console.log('Luis : ', message);
-            // }
-
-            // if (answer != null) {
-            //     await context.sendActivity(
-            //         MessageFactory.text(answer[0].answer, answer[0].answer)
-            //     );
-            // } else {
-            //     await context.sendActivity('No QnA Maker answers were found.');
-            //     console.log('Else : No QnA Maker answers were found.');
-            // }
-
-            // By calling next() you ensure that the next BotHandler is run.
             await next();
         });
 
