@@ -37,18 +37,19 @@ class DentaBot extends ActivityHandler {
         this.onMessage(async (context, next) => {
             try {
                 const qnaResults = await this.qnAMaker.getAnswers(context);
+                console.log('QnA Results : ', qnaResults);
                 const luisResults = await this.intentRecognizer.executeLuisQuery(context);
                 console.log('Luis Results: ' + JSON.stringify(luisResults.luisResult));
                 let response = '';
                 if (
                     luisResults.luisResult.prediction.topIntent === 'GetAvailability' &&
-                luisResults.intents.GetAvailability.score > 0.6
+                luisResults.intents.GetAvailability.score > 0.7
                 ) {
                     console.log('Intent recognizer works on GetAvailability');
                     response = await this.dentistScheduler.getAvailability();
                 } else if (
                     luisResults.luisResult.prediction.topIntent === 'ScheduleAppointment' &&
-                luisResults.intents.ScheduleAppointment.score > 0.6
+                luisResults.intents.ScheduleAppointment.score > 0.7
                 ) {
                     console.log('Inside Schedule appointment');
                     const time_ = luisResults.entities.$instance.Time;
