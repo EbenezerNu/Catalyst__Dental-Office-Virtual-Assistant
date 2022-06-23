@@ -49,10 +49,10 @@ class DentaBot extends ActivityHandler {
         this.onMessage(async (context, next) => {
             const qnaResults = await this.qnAMaker.getAnswers(context);
             const luisResults = await this.intentRecognizer.executeLuisQuery(context);
-
+            console.log('Luis Results: ' + JSON.stringify(luisResults.luisResult));
             if (
                 luisResults.luisResult.prediction.topIntent === 'GetAvailability' &&
-        luisResults.intents.GetAvailability.score > 0.6
+        luisResults.intents.GetAvailability.score > 0.5
             ) {
                 console.log('Intent recognizer works on GetAvailability');
 
@@ -78,14 +78,13 @@ class DentaBot extends ActivityHandler {
                 return;
             } else if (
                 luisResults.luisResult.prediction.topIntent === 'ScheduleAppointment' &&
-        luisResults.intents.ScheduleAppointment.score > 0.6 &&
-        luisResults.entities.$instance.Time &&
-        luisResults.entities.$instance.Time[0]
+        luisResults.intents.ScheduleAppointment.score > 0.5
             ) {
                 console.log('Intent recognizer works on ScheduleAppointment');
-                const time_ = luisResults.entities.$instance.Time[0].text;
+                let time_ = '';
+                if (luisResults.entities.$instance.Time != null || luisResults.entities.$instance.Time !== undefined) { time_ = luisResults.entities.$instance.Time[0].text; }
 
-                console.log('Availability : ', getAvailableTimes);
+                console.log('Availability Schedule: ', getAvailableTimes, '\nTime Detected : ', time_);
                 // fetch('localhost:3000/availability', {
                 //     method: 'GET'
                 // }).then(
@@ -112,7 +111,7 @@ class DentaBot extends ActivityHandler {
                     );
                 } else {
                     await context.sendActivity(
-                        'Your indicated time is not available for booking.\r\nCheck availability first'
+                        'Either your indicated time is not available for booking, is incorrect or you did not specify one.\r\nCheck availability first before scheduling an appointment'
                     );
                 }
                 await next();

@@ -5,7 +5,7 @@ const path = require('path');
 
 const dotenv = require('dotenv');
 // Import required bot configuration.
-const ENV_FILE = path.join(__dirname, '.env');
+const ENV_FILE = path.join(__dirname, 'template.env');
 dotenv.config({ path: ENV_FILE });
 
 const restify = require('restify');
@@ -29,7 +29,7 @@ server.listen(process.env.port || process.env.PORT || 3978, () => {
 
 // Create adapter.
 // See https://aka.ms/about-bot-adapter to learn more about how bots work.
-const adapter = new BotFrameworkAdapter ({
+const adapter = new BotFrameworkAdapter({
     appId: process.env.MicrosoftAppId,
     appPassword: process.env.MicrosoftAppPassword
 });
