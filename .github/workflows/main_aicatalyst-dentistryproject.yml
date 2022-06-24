@@ -52,5 +52,5 @@ jobs:
         with:
           app-name: 'aicatalyst-dentistryproject'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_FCF0920722824FF28F3D36203A6184EE }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_9D596F167A9D4444835AD1EB99EBADD2 }}
           package: .
