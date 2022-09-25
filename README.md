@@ -4,7 +4,7 @@ Below is a template provided for use when building your README file for students
 
 # Project Title
 
-Project description goes here.
+This project is an application to aid Dentist, as their assistant, and giving patients easy access to information, and for scheduling appointment, using AI and Microsoft Azure services.
 
 ## Getting Started
 
